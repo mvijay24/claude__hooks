@@ -21,11 +21,14 @@ LOGGING_ENABLED = True  # Default, will be updated from tray app
 def send_status_to_tray(status):
     """Send status update to the system tray application"""
     try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.settimeout(1)
-            s.connect(("127.0.0.1", TRAY_PORT))
-            s.send(status.encode())
-            log_event({"action": "tray_update"}, f"Status sent: {status}", "INFO")
+        # Use PowerShell to bridge WSL to Windows connection
+        ps_script = Path(__file__).parent.parent / "powershell_bridge.ps1"
+        subprocess.run([
+            "powershell.exe", "-ExecutionPolicy", "Bypass", "-File", 
+            str(ps_script).replace("/mnt/c", "C:").replace("/", "\\"),
+            "-Status", status
+        ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        log_event({"action": "tray_update"}, f"Status sent via PowerShell: {status}", "INFO")
     except (ConnectionError, TimeoutError, OSError) as e:
         log_event({"action": "tray_update"}, f"Failed to send status: {e}", "ERROR")
         # Try to start tray if not running
@@ -63,9 +66,18 @@ def get_logging_config():
     """Get logging configuration from tray app"""
     global LOGGING_ENABLED
     try:
+        # Get Windows host IP for WSL
+        import subprocess
+        result = subprocess.run(['cat', '/etc/resolv.conf'], capture_output=True, text=True)
+        windows_ip = "127.0.0.1"  # fallback
+        for line in result.stdout.split('\n'):
+            if 'nameserver' in line:
+                windows_ip = line.split()[1]
+                break
+        
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(0.5)
-            s.connect(("127.0.0.1", TRAY_PORT))
+            s.connect((windows_ip, TRAY_PORT))
             s.send(b"get_config")
             data = s.recv(1024).decode()
             config = json.loads(data)

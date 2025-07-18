@@ -72,7 +72,7 @@ class ClaudeTrayApp:
         """Listen for status updates from the hook handler"""
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        server_socket.bind(("127.0.0.1", LISTEN_PORT))
+        server_socket.bind(("0.0.0.0", LISTEN_PORT))  # Listen on all interfaces for WSL
         server_socket.listen(1)
         server_socket.settimeout(1)  # 1 second timeout for checking self.running
         
