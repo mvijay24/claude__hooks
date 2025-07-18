@@ -25,10 +25,17 @@ def send_status_to_tray(status):
             s.settimeout(1)
             s.connect(("127.0.0.1", TRAY_PORT))
             s.send(status.encode())
-            log_event({"action": "tray_update"}, f"Status sent: {status}", "DEBUG")
+            log_event({"action": "tray_update"}, f"Status sent: {status}", "INFO")
     except (ConnectionError, TimeoutError, OSError) as e:
-        log_event({"action": "tray_update"}, f"Failed to send status: {e}", "WARNING")
-        pass
+        log_event({"action": "tray_update"}, f"Failed to send status: {e}", "ERROR")
+        # Try to start tray if not running
+        import subprocess
+        try:
+            subprocess.Popen(["pythonw", "C:/ChromeExtensions/Claude             hooks/claude-notifier/tray/1EXEC_claude_tray.py"], 
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            log_event({"action": "tray_start"}, "Attempted to start tray app", "INFO")
+        except:
+            pass
 
 def play_sound(sound_file):
     """Play a sound file using Windows Media Player via PowerShell"""
@@ -85,10 +92,7 @@ def log_event(event_data, message="", level="INFO"):
                 log_entry += f" - {message}"
             
             f.write(f"{log_entry}\n")
-            
-            # Log full data in DEBUG mode
-            if level == "DEBUG":
-                f.write(f"  Full data: {json.dumps(event_data, indent=2)}\n")
+            f.flush()  # Ensure immediate write
     except Exception as e:
         print(f"Logging error: {e}", file=sys.stderr)
 
@@ -104,23 +108,19 @@ def main():
         event_name = input_data.get("hook_event_name", "")
         tool_name = input_data.get("tool_name", "")
         
+        # Log all events for debugging
+        log_event(input_data, f"Received event: {event_name}, Tool: {tool_name}", "INFO")
+        
         # Update tray status based on events
-        if event_name == "PreToolUse":
+        if event_name in ["PreToolUse", "ToolUse", "SubagentStart"]:
             # Claude is starting to work
-            log_event(input_data, "Claude starting work", "INFO")
+            log_event(input_data, f"Setting status to WORKING for event: {event_name}", "INFO")
             send_status_to_tray(STATUS_WORKING)
             
-        elif event_name in ["Stop", "SubagentStop", "Notification"]:
+        elif event_name in ["Stop", "SubagentStop", "Notification", "PostToolUse"]:
             # Claude is done, waiting for input
-            log_event(input_data, "Claude finished, playing sound", "INFO")
+            log_event(input_data, f"Setting status to STANDBY for event: {event_name}", "INFO")
             send_status_to_tray(STATUS_STANDBY)
-            
-            # Play completion sound
-            sound_path = Path("C:/ChromeExtensions/Claude             hooks/claude-notifier/sounds/done.wav")
-            if sound_path.exists():
-                play_sound(str(sound_path))
-            else:
-                log_event({"action": "sound_check"}, f"Sound file not found: {sound_path}", "ERROR")
         
         # Always exit successfully
         sys.exit(0)
