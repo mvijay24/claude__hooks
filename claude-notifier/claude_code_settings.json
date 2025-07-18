@@ -1,0 +1,8 @@
+{
+  "hooks": {
+    "PreToolUse": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\"",
+    "Stop": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\"",
+    "SubagentStop": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\"",
+    "Notification": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\""
+  }
+}
