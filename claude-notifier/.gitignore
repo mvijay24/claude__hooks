@@ -8,6 +8,7 @@ __pycache__/
 # Logs
 *.log
 events.log
+hooks/events.log
 
 # Config
 config.json
