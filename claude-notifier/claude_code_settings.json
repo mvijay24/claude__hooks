@@ -1,11 +1,59 @@
 {
   "hooks": {
-    "PreToolUse": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\"",
-    "ToolUse": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\"",
-    "PostToolUse": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\"",
-    "SubagentStart": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\"",
-    "SubagentStop": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\"",
-    "Stop": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\"",
-    "Notification": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\""
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\""
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\""
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\""
+          }
+        ]
+      }
+    ]
   }
 }
