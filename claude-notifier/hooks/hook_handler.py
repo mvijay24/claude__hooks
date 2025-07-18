@@ -29,10 +29,9 @@ def send_status_to_tray(status):
             "-Status", status
         ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         log_event({"action": "tray_update"}, f"Status sent via PowerShell: {status}", "INFO")
-    except (ConnectionError, TimeoutError, OSError) as e:
+    except Exception as e:
         log_event({"action": "tray_update"}, f"Failed to send status: {e}", "ERROR")
         # Try to start tray if not running
-        import subprocess
         try:
             subprocess.Popen(["pythonw", "C:/ChromeExtensions/Claude             hooks/claude-notifier/tray/claude_tray.py"], 
                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

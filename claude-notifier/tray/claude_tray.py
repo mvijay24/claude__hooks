@@ -29,14 +29,24 @@ class ClaudeTrayApp:
         self.running = True
         self.flash_state = False
         self.logging_enabled = True
+        self.breathing_phase = 0  # For smooth breathing effect
         
         # Load config
         self.load_config()
         
-        # Create icons
-        self.green_icon = self.create_icon_image((0, 255, 0))
-        self.yellow_icon = self.create_icon_image((255, 255, 0))
-        self.yellow_dark_icon = self.create_icon_image((128, 128, 0))
+        # Create icon sets for breathing animation
+        self.green_icons = []
+        self.yellow_icons = []
+        
+        # Create gradient of green icons (breathing effect)
+        for i in range(8):
+            brightness = int(120 + (135 * (i / 7)))  # 120-255
+            self.green_icons.append(self.create_icon_image((0, brightness, 0)))
+        
+        # Create gradient of yellow icons (breathing effect)  
+        for i in range(8):
+            brightness = int(180 + (75 * (i / 7)))  # 180-255
+            self.yellow_icons.append(self.create_icon_image((brightness, brightness, 0)))
         
     def create_icon_image(self, color):
         """Create a colored circle icon"""
@@ -54,19 +64,25 @@ class ClaudeTrayApp:
         return image
     
     def update_icon(self):
-        """Update the tray icon based on current status"""
+        """Update the tray icon with breathing animation"""
         if self.icon:
-            if self.status == "working":
-                # Flash between yellow and dark yellow
-                if self.flash_state:
-                    self.icon.icon = self.yellow_icon
-                else:
-                    self.icon.icon = self.yellow_dark_icon
-                self.flash_state = not self.flash_state
+            # Calculate breathing phase (0-14, up and down)
+            if self.breathing_phase < 7:
+                index = self.breathing_phase
             else:
-                # Standby - solid green
-                self.icon.icon = self.green_icon
-                self.flash_state = False
+                index = 14 - self.breathing_phase
+            
+            if self.status == "working":
+                # Yellow breathing animation when working
+                self.icon.icon = self.yellow_icons[index]
+                self.icon.title = "Claude is working..."
+            else:
+                # Green breathing animation when ready
+                self.icon.icon = self.green_icons[index]
+                self.icon.title = "Claude is ready"
+            
+            # Advance breathing phase
+            self.breathing_phase = (self.breathing_phase + 1) % 15
     
     def status_listener(self):
         """Listen for status updates from the hook handler"""
@@ -101,8 +117,8 @@ class ClaudeTrayApp:
         """Update icon appearance in a separate thread"""
         while self.running:
             self.update_icon()
-            # Flash faster when working
-            time.sleep(0.5 if self.status == "working" else 1.0)
+            # Smooth breathing animation
+            time.sleep(0.15)  # 15 frames over ~2.25 seconds for full breath cycle
     
     def quit_app(self, icon, item):
         """Quit the application"""
@@ -161,7 +177,7 @@ class ClaudeTrayApp:
         # Create and run tray icon
         self.icon = pystray.Icon(
             "claude_status",
-            self.green_icon,
+            self.green_icons[0],  # Start with dimmest green
             "Claude Status - Ready",
             menu
         )
