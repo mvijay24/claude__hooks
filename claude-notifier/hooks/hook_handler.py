@@ -122,25 +122,15 @@ def main():
         # Log all events for debugging
         log_event(input_data, f"Received event: {event_name}, Tool: {tool_name}", "INFO")
         
-        # FAILSAFE: If this is the second UserPromptSubmit without a Stop, force green first
+        # INSTANT YELLOW - NO DELAY, NO BULLSHIT
         if event_name == "UserPromptSubmit":
-            # Check last few lines of log to see if we're stuck in yellow
-            try:
-                log_path = Path(__file__).parent / "events.log"
-                with open(log_path, "r", encoding="utf-8") as f:
-                    lines = f.readlines()[-10:]  # Last 10 lines
-                    # If last UserPromptSubmit didn't have a Stop after it, reset to green
-                    working_count = sum(1 for line in lines if "Setting status to WORKING" in line)
-                    standby_count = sum(1 for line in lines if "Setting status to STANDBY" in line)
-                    if working_count > standby_count:
-                        log_event(input_data, "FAILSAFE: Resetting to green before new prompt", "INFO")
-                        send_status_to_tray(STATUS_STANDBY)
-                        time.sleep(0.1)
-            except:
-                pass
+            # IMMEDIATELY turn yellow when user sends message
+            log_event(input_data, "INSTANT YELLOW on UserPromptSubmit!", "INFO")
+            send_status_to_tray(STATUS_WORKING)
+            # That's it. No checking, no waiting, just YELLOW NOW!
         
-        # Update tray status based on events
-        if event_name in ["PreToolUse", "ToolUse", "SubagentStart", "UserPromptSubmit"]:
+        # Update tray status based on OTHER events (not UserPromptSubmit - already handled above)
+        elif event_name in ["PreToolUse", "ToolUse", "SubagentStart"]:
             # Claude is starting to work
             log_event(input_data, f"Setting status to WORKING for event: {event_name}", "INFO")
             send_status_to_tray(STATUS_WORKING)
