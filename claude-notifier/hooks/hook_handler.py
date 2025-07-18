@@ -123,15 +123,19 @@ def main():
         log_event(input_data, f"Received event: {event_name}, Tool: {tool_name}", "INFO")
         
         # Update tray status based on events
-        if event_name in ["PreToolUse", "ToolUse", "SubagentStart"]:
+        if event_name in ["PreToolUse", "ToolUse", "SubagentStart", "UserPromptSubmit"]:
             # Claude is starting to work
             log_event(input_data, f"Setting status to WORKING for event: {event_name}", "INFO")
             send_status_to_tray(STATUS_WORKING)
             
-        elif event_name in ["Stop", "SubagentStop", "Notification", "PostToolUse"]:
+        elif event_name in ["Stop", "SubagentStop", "Notification"]:
             # Claude is done, waiting for input
             log_event(input_data, f"Setting status to STANDBY for event: {event_name}", "INFO")
             send_status_to_tray(STATUS_STANDBY)
+            
+        elif event_name == "PostToolUse":
+            # Keep working status during PostToolUse (more tools might follow)
+            log_event(input_data, f"Keeping WORKING status for event: {event_name}", "INFO")
         
         # Always exit successfully
         sys.exit(0)

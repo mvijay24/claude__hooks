@@ -54,6 +54,16 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:\\ChromeExtensions\\Claude             hooks\\claude-notifier\\hooks\\hook_handler.py\""
+          }
+        ]
+      }
     ]
   }
 }
