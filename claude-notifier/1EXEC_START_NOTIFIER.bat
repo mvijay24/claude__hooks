@@ -25,7 +25,7 @@ taskkill /F /IM python.exe /FI "WINDOWTITLE eq claude_status*" >nul 2>&1
 :: Start the tray app in background
 echo Starting system tray icon...
 cd /d "%~dp0tray"
-start "" /B pythonw.exe 1EXEC_claude_tray.py
+start "" /B pythonw.exe claude_tray.py
 
 :: Brief message and auto-close
 echo.
