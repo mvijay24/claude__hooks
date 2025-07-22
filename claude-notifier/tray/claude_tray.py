@@ -16,6 +16,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 import pystray
 from pystray import MenuItem, Menu
+import winsound
 
 # Configuration
 LISTEN_PORT = 12345
@@ -25,11 +26,13 @@ CONFIG_FILE = Path(__file__).parent.parent / "config.json"
 class ClaudeTrayApp:
     def __init__(self):
         self.status = "standby"
+        self.previous_status = "standby"
         self.icon = None
         self.running = True
         self.flash_state = False
         self.logging_enabled = True
         self.breathing_phase = 0  # For smooth breathing effect
+        self.sound_file = r"C:\ChromeExtensions\Claude             hooks\claude-notifier\sounds\task_complete.wav"
         
         # Load config
         self.load_config()
@@ -99,8 +102,17 @@ class ClaudeTrayApp:
                 client_socket, addr = server_socket.accept()
                 data = client_socket.recv(1024).decode()
                 if data in ["working", "standby"]:
+                    self.previous_status = self.status
                     self.status = data
                     print(f"Status changed to: {self.status}")
+                    
+                    # Play sound when transitioning from working to standby
+                    if self.previous_status == "working" and self.status == "standby":
+                        try:
+                            winsound.PlaySound(self.sound_file, winsound.SND_FILENAME | winsound.SND_ASYNC)
+                            print("Task complete sound played")
+                        except Exception as e:
+                            print(f"Failed to play sound: {e}")
                 elif data == "get_config":
                     # Send config back to hook handler
                     config = {'logging_enabled': self.logging_enabled}

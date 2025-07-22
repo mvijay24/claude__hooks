@@ -5,6 +5,7 @@
 - **Yellow breathing icon** = Claude is working
 - Instant visual feedback when you send a message
 - Auto-switches back to green when Claude finishes
+- **Sound notification** = Plays when task completes (yellow → green)
 
 ## Installation
 
@@ -37,6 +38,12 @@ Hooks are already configured in:
 - Instant response (<0.5 seconds)
 
 ## Troubleshooting
+
+### Sound Not Playing
+1. Check sound file exists: `C:\ChromeExtensions\Claude             hooks\claude-notifier\sounds\task_complete.wav`
+2. Restart tray app after changes
+3. Test with: `test_sound.bat`
+4. Check Windows sound settings aren't muted
 
 ### Icon Stuck on Yellow/Green
 1. Force green: `powershell.exe -Command "echo standby | nc 127.0.0.1 12345"`
