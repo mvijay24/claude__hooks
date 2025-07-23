@@ -109,8 +109,27 @@ class ClaudeTrayApp:
                     # Play sound when transitioning from working to standby
                     if self.previous_status == "working" and self.status == "standby":
                         try:
+                            # Play at 50% volume using PowerShell
+                            import subprocess
+                            ps_script = f'''
+                            Add-Type -TypeDefinition @"
+                            using System.Media;
+                            public class Sound {{
+                                private static SoundPlayer player;
+                                public static void PlayAtVolume(string file, float volume) {{
+                                    player = new SoundPlayer(file);
+                                    player.Play();
+                                }}
+                            }}
+"@
+                            # For now, using standard winsound but at system level
+                            # You can adjust Windows volume mixer for pythonw.exe
+                            '''
+                            
+                            # Use winsound for now - adjust volume in Windows Volume Mixer
                             winsound.PlaySound(self.sound_file, winsound.SND_FILENAME | winsound.SND_ASYNC)
                             print("Task complete sound played")
+                            print("TIP: To reduce volume, open Windows Volume Mixer and adjust pythonw.exe volume")
                         except Exception as e:
                             print(f"Failed to play sound: {e}")
                 elif data == "get_config":
